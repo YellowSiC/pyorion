@@ -1,0 +1,149 @@
+[project]
+name = "pyorion"
+requires-python = ">=3.9"
+description = "A super fast asynchronous Python web-based GUI framework powered by a Rust runtime."
+authors = [
+    { name = "Ari Bermeki", email = "ari.bermeki@icloud.com" }
+]
+classifiers = [
+    "Development Status :: 1 - Alpha",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Internet :: Web/GUI",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Rust"
+]
+
+
+dependencies = [
+  "watchdog >=4.0.1, <5.0",
+  "multiprocess == 0.70.18",
+  "nestd == 0.3.2",
+  "inquirerpy == 0.3.4",
+  "rustimport >=1.3.4, <2.0",
+  "orjson >=3.9.15, <4.0",
+  "annotated-types == 0.7.0",
+  "colorama == 0.4.6",
+  "isort == 6.0.1",
+  "loguru == 0.7.3",
+  "maturin == 1.9.4",
+  "orjson == 3.11.3",
+  "pydantic == 2.11.7",
+  "pydantic-core == 2.33.2",
+  "typing-extensions == 4.15.0",
+  "typing-inspection == 0.4.1",
+  "websockets == 15.0.1",
+  "win32-setctime == 1.2.0",
+  "typer == 0.17.3",
+  "ruff == 0.12.11"
+]
+
+
+dynamic = ["version"]
+
+[build-system]
+requires = ["maturin>=1.9,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+# The Rust extension module name
+module-name = "pyorion._pyorion"
+# Bindings are implemented using PyO3
+bindings = "pyo3"
+
+[dependency-groups]
+# Development and linting dependencies
+lint = [
+    "ruff~=0.11",
+]
+
+# Testing dependencies
+test = [
+  "pytest>=8.0.0,<9.0",
+  "pytest-asyncio>=0.23,<1.0",
+]
+
+[tool.ruff.format]
+# Enable formatting for inline code snippets in docstrings
+docstring-code-format = true
+
+# Ruff linting rules configuration
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "C4",     # flake8-comprehensions
+    "B",      # flake8-bugbear
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "D",      # pydocstyle
+    "SIM",    # flake8-simplify
+    "RUF",    # unused-noqa
+    "Q",      # flake8-quotes
+    "C90",    # McCabe complexity
+    "ANN001", # missing-type-function-argument
+    "ANN201", # missing-return-type-undocumented-public-function
+    "ASYNC",  # flake8-async
+    "A",      # flake8-builtins
+    "COM",    # flake8-commas
+    "ISC",    # flake8-implicit-str-concat
+    "ICN001", # unconventional-import-alias
+    "PIE",    # flake8-pie
+    "PT",     # flake8-pytest-style
+    "INT",    # flake8-gettext
+    "ARG",    # flake8-unused-arguments
+    "PGH004", # blanket-noqa
+    "TRY201", # raise without specifying exception name
+    "NPY",    # NumPy-specific rules
+    "PD",     # pandas-vet
+    "PERF",   # Perflint
+    "PL",     # Pylint
+    "TID252", # Relative imports from parent modules are banned
+]
+ignore = [
+    "E501",    # line too long, handled by formatter
+    "COM812",  # missing-trailing-comma
+    "PERF203", # try-except inside loops
+    "PLR2004", # magic-value-comparison
+    "PLR5501", # collapsible-else-if
+    "PLW0120", # useless-else-on-loop
+    "PLR0911", # too-many-return-statements
+    "PLR0913", # too-many-arguments
+    "PLC0205", # single-string-slots
+    "PLW0603", # global-statement
+    "PLC1901", # compare-to-empty-string
+    "PLR0904", # too-many-public-methods
+    "RUF002",  # ambiguous-unicode-character-docstring
+    "RUF003",  # ambiguous-unicode-character-comment
+    "SIM105",  # suppressible-exception
+    "ISC001",  # implicit string concatenation
+    "D415",    # docstring ends in punctuation
+    "TID252",  # prefer absolute imports
+    "F401",    # unused imports
+]
+
+[tool.ruff.lint.per-file-ignores]
+"examples/**/*.py" = ["D"]
+"tests/**/*.py" = ["D"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+lines-after-imports = 2
+
+[tool.ruff.lint.pydocstyle]
+# Enforce Google-style docstrings
+convention = "google"
