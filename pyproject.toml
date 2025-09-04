@@ -41,7 +41,7 @@ dependencies = [
   "maturin == 1.9.4",
   "orjson == 3.11.3",
   "pydantic == 2.11.7",
-  "pydantic-core == 2.33.2",
+  "pydantic-core == 2.39.0",
   "typing-extensions == 4.15.0",
   "typing-inspection == 0.4.1",
   "websockets == 15.0.1",
