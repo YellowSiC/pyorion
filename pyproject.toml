@@ -28,7 +28,7 @@ classifiers = [
 
 
 dependencies = [
-  "watchdog >=4.0.1, <5.0",
+  "watchdog >=4.0.1, <7.0",
   "multiprocess == 0.70.18",
   "nestd == 0.3.2",
   "inquirerpy == 0.3.4",
