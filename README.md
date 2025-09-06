@@ -22,7 +22,7 @@
 
 
 <div align="center">
-  <img src="docs/images/data_flow.png" alt="Framework Architecture" width="400"/>
+  <img src="docs/images/data_flow.png" alt="Framework Architecture" width="50%" height="50%"/>
   <p>This glossary defines the key terminology used in the framework architecture, ensuring consistent communication and documentation across Python, Rust, and WebView components.</p>
 </div>
 
