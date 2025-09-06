@@ -5,7 +5,6 @@ window state, size, decorations, themes, and visual effects.
 Each call is delegated to the Rust event loop backend.
 """
 
-
 from pyorion.runtime.runtime_handle import event_register
 from pyorion.setup.types import (
     RGBA,
@@ -37,11 +36,11 @@ class Window:
         """Initialize a new Window instance."""
 
     async def set_window_effect(
-    self: "Window",
-    effects: list[WindowEffect],
-    state: WindowEffectState | None = None,
-    radius: float | None = None,
-    color: Color | None = None,
+        self: "Window",
+        effects: list[WindowEffect],
+        state: WindowEffectState | None = None,
+        radius: float | None = None,
+        color: Color | None = None,
     ) -> bool:
         """Apply a set of visual effects to the window.
 
@@ -85,7 +84,7 @@ class Window:
         """
         return await event_register("window.set_visible", visible, result_type=bool)
 
-    async def set_title(self:"Window", title: str) -> bool:
+    async def set_title(self: "Window", title: str) -> bool:
         """Set the title of the window.
 
         Wrapper for ``tao::window::Window::set_title``.
@@ -126,7 +125,7 @@ class Window:
         """
         return await event_register("window.scale_factor", {}, result_type=float)
 
-    async def set_always_on_bottom(self:"Window", always: bool) -> bool:
+    async def set_always_on_bottom(self: "Window", always: bool) -> bool:
         """Set whether the window is always kept on bottom.
 
         Wrapper for ``tao::window::Window::set_always_on_bottom``.
@@ -135,7 +134,7 @@ class Window:
             "window.set_always_on_bottom", always, result_type=bool
         )
 
-    async def set_always_on_top(self:"Window", always: bool) -> bool:
+    async def set_always_on_top(self: "Window", always: bool) -> bool:
         """Set whether the window is always kept on top.
 
         Wrapper for ``tao::window::Window::set_always_on_top``.
@@ -144,7 +143,7 @@ class Window:
             "window.set_always_on_top", always, result_type=bool
         )
 
-    async def set_background_color(self:"Window", color: RGBA | None) -> bool:
+    async def set_background_color(self: "Window", color: RGBA | None) -> bool:
         """Set the background color of the window.
 
         Wrapper for ``tao::window::Window::set_background_color``.
@@ -155,14 +154,14 @@ class Window:
             result_type=bool,
         )
 
-    async def set_closable(self:"Window", closable: bool) -> bool:
+    async def set_closable(self: "Window", closable: bool) -> bool:
         """Set whether the window is closable.
 
         Wrapper for ``tao::window::Window::set_closable``.
         """
         return await event_register("window.set_closable", closable, result_type=bool)
 
-    async def set_content_protection(self:"Window", enabled: bool) -> bool:
+    async def set_content_protection(self: "Window", enabled: bool) -> bool:
         """Enable or disable content protection.
 
         Wrapper for ``tao::window::Window::set_content_protection``.
@@ -171,21 +170,21 @@ class Window:
             "window.set_content_protection", enabled, result_type=bool
         )
 
-    async def set_cursor_grab(self:"Window", grab: bool) -> bool:
+    async def set_cursor_grab(self: "Window", grab: bool) -> bool:
         """Grab the cursor inside the window.
 
         Wrapper for ``tao::window::Window::set_cursor_grab``.
         """
         return await event_register("window.set_cursor_grab", grab, result_type=bool)
 
-    async def set_cursor_icon(self:"Window", cursor: CursorIcon) -> bool:
+    async def set_cursor_icon(self: "Window", cursor: CursorIcon) -> bool:
         """Set the cursor icon.
 
         Wrapper for ``tao::window::Window::set_cursor_icon``.
         """
         return await event_register("window.set_cursor_icon", cursor, result_type=bool)
 
-    async def set_cursor_position(self:"Window", position: Position) -> bool:
+    async def set_cursor_position(self: "Window", position: Position) -> bool:
         """Set the cursor position in window coordinates.
 
         Wrapper for ``tao::window::Window::set_cursor_position``.
@@ -196,7 +195,7 @@ class Window:
             result_type=bool,
         )
 
-    async def set_cursor_visible(self:"Window", visible: bool) -> bool:
+    async def set_cursor_visible(self: "Window", visible: bool) -> bool:
         """Set cursor visibility.
 
         Wrapper for ``tao::window::Window::set_cursor_visible``.
@@ -205,7 +204,7 @@ class Window:
             "window.set_cursor_visible", visible, result_type=bool
         )
 
-    async def set_decorations(self:"Window", decorations: bool) -> bool:
+    async def set_decorations(self: "Window", decorations: bool) -> bool:
         """Set window decorations.
 
         Wrapper for ``tao::window::Window::set_decorations``.
@@ -221,7 +220,7 @@ class Window:
         """
         return await event_register("window.set_focus", {}, result_type=bool)
 
-    async def set_focusable(self:"Window", focusable: bool) -> bool:
+    async def set_focusable(self: "Window", focusable: bool) -> bool:
         """Set focusable state.
 
         Wrapper for ``tao::window::Window::set_focusable``.
@@ -237,7 +236,7 @@ class Window:
             "window.get_available_monitors", {}, result_type=list[Monitor]
         )
 
-    async def set_fullscreen(self:"Window", fullscreen: bool) -> bool:
+    async def set_fullscreen(self: "Window", fullscreen: bool) -> bool:
         """Toggle fullscreen mode.
 
         Wrapper for ``tao::window::Window::set_fullscreen``.
@@ -246,7 +245,7 @@ class Window:
             "window.set_fullscreen", fullscreen, result_type=bool
         )
 
-    async def set_ignore_cursor_events(self:"Window", ignore: bool) -> bool:
+    async def set_ignore_cursor_events(self: "Window", ignore: bool) -> bool:
         """Ignore or catch cursor events.
 
         Wrapper for ``tao::window::Window::set_ignore_cursor_events``.
@@ -255,7 +254,7 @@ class Window:
             "window.set_ignore_cursor_events", ignore, result_type=bool
         )
 
-    async def set_ime_position(self:"Window", position: Position) -> bool:
+    async def set_ime_position(self: "Window", position: Position) -> bool:
         """Set IME candidate box position.
 
         Wrapper for ``tao::window::Window::set_ime_position``.
@@ -266,7 +265,7 @@ class Window:
             result_type=bool,
         )
 
-    async def set_progress_bar(self:"Window", progress: ProgressBarState) -> bool:
+    async def set_progress_bar(self: "Window", progress: ProgressBarState) -> bool:
         """Set the progress bar state.
 
         Wrapper for ``tao::window::Window::set_progress_bar``.
@@ -277,7 +276,7 @@ class Window:
             result_type=bool,
         )
 
-    async def set_inner_size(self:"Window", size: Size) -> bool:
+    async def set_inner_size(self: "Window", size: Size) -> bool:
         """Set inner size.
 
         Wrapper for ``tao::window::Window::set_inner_size``.
@@ -299,7 +298,7 @@ class Window:
             result_type=bool,
         )
 
-    async def set_max_inner_size(self:"Window", size: Size) -> bool:
+    async def set_max_inner_size(self: "Window", size: Size) -> bool:
         """Set max inner size.
 
         Wrapper for ``tao::window::Window::set_max_inner_size``.
@@ -310,7 +309,7 @@ class Window:
             result_type=bool,
         )
 
-    async def set_maximizable(self:"Window", maximizable: bool) -> bool:
+    async def set_maximizable(self: "Window", maximizable: bool) -> bool:
         """Set maximizable flag.
 
         Wrapper for ``tao::window::Window::set_maximizable``.
@@ -319,14 +318,14 @@ class Window:
             "window.set_maximizable", maximizable, result_type=bool
         )
 
-    async def set_minimized(self:"Window", minimized: bool) -> bool:
+    async def set_minimized(self: "Window", minimized: bool) -> bool:
         """Minimize or restore window.
 
         Wrapper for ``tao::window::Window::set_minimized``.
         """
         return await event_register("window.set_minimized", minimized, result_type=bool)
 
-    async def set_min_inner_size(self:"Window", size: Size) -> bool:
+    async def set_min_inner_size(self: "Window", size: Size) -> bool:
         """Set minimum inner size.
 
         Wrapper for ``tao::window::Window::set_min_inner_size``.
@@ -337,7 +336,7 @@ class Window:
             result_type=bool,
         )
 
-    async def set_minimizable(self:"Window", minimizable: bool) -> bool:
+    async def set_minimizable(self: "Window", minimizable: bool) -> bool:
         """Set minimizable flag.
 
         Wrapper for ``tao::window::Window::set_minimizable``.
@@ -346,7 +345,7 @@ class Window:
             "window.set_minimizable", minimizable, result_type=bool
         )
 
-    async def set_outer_position(self:"Window", position: Position) -> bool:
+    async def set_outer_position(self: "Window", position: Position) -> bool:
         """Set outer position.
 
         Wrapper for ``tao::window::Window::set_outer_position``.
@@ -357,14 +356,14 @@ class Window:
             result_type=bool,
         )
 
-    async def set_theme(self:"Window", theme: Theme) -> bool:
+    async def set_theme(self: "Window", theme: Theme) -> bool:
         """Set window theme.
 
         Wrapper for ``tao::window::Window::set_theme``.
         """
         return await event_register("window.set_theme", theme, result_type=bool)
 
-    async def set_visible_on_all_workspaces(self:"Window", visible: bool) -> bool:
+    async def set_visible_on_all_workspaces(self: "Window", visible: bool) -> bool:
         """Set whether the window is visible on all workspaces.
 
         Wrapper for ``tao::window::Window::set_visible_on_all_workspaces``.

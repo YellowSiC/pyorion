@@ -30,8 +30,13 @@ def page_clipboard() -> None:
     with ui.column().classes("p-6"):
         ui.label("📋 Clipboard API").classes("text-xl font-bold")
         text_input = ui.input("Text eingeben").classes("w-full")
-        ui.button("Set Text", on_click=lambda: asyncio.create_task(clipboard.set_text(text_input.value)))
-        ui.button("Get Text", on_click=lambda: asyncio.create_task(show_clipboard_text()))
+        ui.button(
+            "Set Text",
+            on_click=lambda: asyncio.create_task(clipboard.set_text(text_input.value)),
+        )
+        ui.button(
+            "Get Text", on_click=lambda: asyncio.create_task(show_clipboard_text())
+        )
         ui.button("Clear", on_click=lambda: asyncio.create_task(clipboard.clear()))
 
 
@@ -46,10 +51,14 @@ def page_controlcenter() -> None:
     with ui.column().classes("p-6"):
         ui.label("🔔 ControlCenter API").classes("text-xl font-bold")
         notif_text = ui.input("Notification Text").classes("w-full")
-        ui.button("Send Notification",
-                  on_click=lambda: asyncio.create_task(
-                      control.notification(summary=notif_text.value, body="Hello from NiceGUI")
-                  ))
+        ui.button(
+            "Send Notification",
+            on_click=lambda: asyncio.create_task(
+                control.notification(
+                    summary=notif_text.value, body="Hello from NiceGUI"
+                )
+            ),
+        )
 
 
 # ---------- Dialog ----------
@@ -57,10 +66,12 @@ def page_controlcenter() -> None:
 def page_dialog() -> None:
     with ui.column().classes("p-6"):
         ui.label("💬 Dialog API").classes("text-xl font-bold")
-        ui.button("Show Message",
-                  on_click=lambda: asyncio.create_task(
-                      dialogs.show_message("Info", "Das ist eine Testnachricht")
-                  ))
+        ui.button(
+            "Show Message",
+            on_click=lambda: asyncio.create_task(
+                dialogs.show_message("Info", "Das ist eine Testnachricht")
+            ),
+        )
         ui.button("Pick File", on_click=lambda: asyncio.create_task(pick_file()))
 
 
@@ -87,8 +98,14 @@ async def show_home() -> None:
 def page_webview() -> None:
     with ui.column().classes("p-6"):
         ui.label("🌐 WebView API").classes("text-xl font-bold")
-        ui.button("Open DevTools", on_click=lambda: asyncio.create_task(webview.open_devtools()))
-        ui.button("Close DevTools", on_click=lambda: asyncio.create_task(webview.close_devtools()))
+        ui.button(
+            "Open DevTools",
+            on_click=lambda: asyncio.create_task(webview.open_devtools()),
+        )
+        ui.button(
+            "Close DevTools",
+            on_click=lambda: asyncio.create_task(webview.close_devtools()),
+        )
 
 
 # ---------- Window ----------
@@ -97,7 +114,10 @@ def page_window() -> None:
     with ui.column().classes("p-6"):
         ui.label("🪟 Window API").classes("text-xl font-bold")
         title_input = ui.input("Fenstertitel").classes("w-full")
-        ui.button("Set Title", on_click=lambda: asyncio.create_task(window.set_title(title_input.value)))
+        ui.button(
+            "Set Title",
+            on_click=lambda: asyncio.create_task(window.set_title(title_input.value)),
+        )
         ui.button("Get Title", on_click=lambda: asyncio.create_task(show_title()))
 
 
@@ -141,8 +161,6 @@ async def run_runtime() -> None:
     await launch(app_cfg)
 
 
-
-
 async def apply_effect(effect: types.WindowEffect, name: str) -> None:
     ok = await window.set_window_effect(
         effects=[effect],
@@ -152,7 +170,10 @@ async def apply_effect(effect: types.WindowEffect, name: str) -> None:
     if ok:
         await dialogs.show_message("WindowEffect", f"{name} aktiviert ✅", "info")
     else:
-        await dialogs.show_message("WindowEffect", f"{name} fehlgeschlagen ❌", "warning")
+        await dialogs.show_message(
+            "WindowEffect", f"{name} fehlgeschlagen ❌", "warning"
+        )
+
 
 async def handle_set_text() -> None:
     await clipboard.set_text("Hallo von PyOrion Clipboard!")
@@ -191,8 +212,9 @@ async def handle_get_image() -> None:
         "max-width: 220px; border-radius: 16px; "
         "box-shadow: 0 6px 12px rgba(0,0,0,0.25);"
     )
-    await dialogs.show_message("Clipboard", f"Bild geladen ({width}x{height}) ✅", "info")
-
+    await dialogs.show_message(
+        "Clipboard", f"Bild geladen ({width}x{height}) ✅", "info"
+    )
 
 
 with ui.header().classes(
@@ -203,32 +225,66 @@ with ui.header().classes(
 
 
 with ui.row().classes("grid grid-cols-3 gap-8 p-6 w-full"):
-    with ui.card().classes("flex flex-col items-center justify-center rounded-2xl shadow-xl p-6"):
+    with ui.card().classes(
+        "flex flex-col items-center justify-center rounded-2xl shadow-xl p-6"
+    ):
         ui.label("📋 Clipboard: Text").classes("text-lg font-semibold mb-2")
         ui.button("Set Text", on_click=lambda _: handle_set_text()).classes("w-full")
         ui.button("Get Text", on_click=lambda _: handle_get_text()).classes("w-full")
-        ui.button("Clear Clipboard", on_click=lambda _: handle_clear()).classes("w-full")
-    with ui.card().classes("flex flex-col items-center justify-center rounded-2xl shadow-xl p-6"):
+        ui.button("Clear Clipboard", on_click=lambda _: handle_clear()).classes(
+            "w-full"
+        )
+    with ui.card().classes(
+        "flex flex-col items-center justify-center rounded-2xl shadow-xl p-6"
+    ):
         ui.label("🖼️ Clipboard: Bilder").classes("text-lg font-semibold mb-2")
-        ui.button("Set Test Image", on_click=lambda _: handle_set_image()).classes("w-full")
+        ui.button("Set Test Image", on_click=lambda _: handle_set_image()).classes(
+            "w-full"
+        )
         ui.button("Get Image", on_click=lambda _: handle_get_image()).classes("w-full")
 with ui.row().classes("grid grid-cols-3 gap-6 p-6 w-full"):
     with ui.card().classes("p-4 rounded-xl shadow-lg"):
         ui.label("Basic").classes("font-semibold mb-2")
-        ui.button("Blur", on_click=lambda _: apply_effect(types.WindowEffect.Blur, "Blur"))
-        ui.button("Acrylic", on_click=lambda _: apply_effect(types.WindowEffect.Acrylic, "Acrylic"))
+        ui.button(
+            "Blur", on_click=lambda _: apply_effect(types.WindowEffect.Blur, "Blur")
+        )
+        ui.button(
+            "Acrylic",
+            on_click=lambda _: apply_effect(types.WindowEffect.Acrylic, "Acrylic"),
+        )
 
     with ui.card().classes("p-4 rounded-xl shadow-lg"):
         ui.label("Mica (Win11)").classes("font-semibold mb-2")
-        ui.button("Mica", on_click=lambda _: apply_effect(types.WindowEffect.Mica, "Mica"))
-        ui.button("Mica Dark", on_click=lambda _: apply_effect(types.WindowEffect.MicaDark, "MicaDark"))
-        ui.button("Mica Light", on_click=lambda _: apply_effect(types.WindowEffect.MicaLight, "MicaLight"))
+        ui.button(
+            "Mica", on_click=lambda _: apply_effect(types.WindowEffect.Mica, "Mica")
+        )
+        ui.button(
+            "Mica Dark",
+            on_click=lambda _: apply_effect(types.WindowEffect.MicaDark, "MicaDark"),
+        )
+        ui.button(
+            "Mica Light",
+            on_click=lambda _: apply_effect(types.WindowEffect.MicaLight, "MicaLight"),
+        )
 
     with ui.card().classes("p-4 rounded-xl shadow-lg"):
         ui.label("Tabbed (Win11)").classes("font-semibold mb-2")
-        ui.button("Tabbed", on_click=lambda _: apply_effect(types.WindowEffect.Tabbed, "Tabbed"))
-        ui.button("Tabbed Dark", on_click=lambda _: apply_effect(types.WindowEffect.TabbedDark, "TabbedDark"))
-        ui.button("Tabbed Light", on_click=lambda _: apply_effect(types.WindowEffect.TabbedLight, "TabbedLight"))
+        ui.button(
+            "Tabbed",
+            on_click=lambda _: apply_effect(types.WindowEffect.Tabbed, "Tabbed"),
+        )
+        ui.button(
+            "Tabbed Dark",
+            on_click=lambda _: apply_effect(
+                types.WindowEffect.TabbedDark, "TabbedDark"
+            ),
+        )
+        ui.button(
+            "Tabbed Light",
+            on_click=lambda _: apply_effect(
+                types.WindowEffect.TabbedLight, "TabbedLight"
+            ),
+        )
 
 with ui.card().classes("m-6 p-6 shadow-xl rounded-2xl"):
     ui.label("📊 Plot Demo").classes("text-lg font-semibold mb-4")
@@ -236,7 +292,6 @@ with ui.card().classes("m-6 p-6 shadow-xl rounded-2xl"):
         plt.plot([0, 1, 2, 3], [0, 1, 4, 9], marker="o")
         plt.title("Quadratische Funktion")
         plt.grid(True)
-
 
 
 # Launch the WebView window on startup

@@ -1,10 +1,7 @@
-
 """Copyright 2025-2030 Ari Bermeki @ YellowSiC within The Commons Conservancy
 SPDX-License-Identifier: Apache-2.0
 SPDX-License-Identifier: MIT
-
 Clipboard API - Manage text and image content in the system clipboard.
-
 This module provides asynchronous access to the system clipboard
 for both text and images via the Rust event loop.
 """
@@ -23,6 +20,7 @@ class ClipboardAPI:
     content in the system clipboard. All communication is handled through
     the internal event system (:func:`event_register`).
     """
+
     def __init__(self) -> None:
         """Initialize a new ClipboardAPI instance."""
 

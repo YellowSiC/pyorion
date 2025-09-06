@@ -24,8 +24,6 @@ def list_commands() -> dict[str, list[str]]:
     return {key: [f.__name__ for f in funcs] for key, funcs in _event_callbacks.items()}
 
 
-
-
 async def handle_frontend_connections(websocket: ServerConnection) -> None:
     """Handle an individual frontend WebSocket connection."""
     core.connected_clients.add(websocket)
@@ -38,7 +36,9 @@ async def handle_frontend_connections(websocket: ServerConnection) -> None:
                     logging.warning("Ignoring non-dict payload: %s", payload)
                     continue
 
-                if all(k in payload for k in ("cmd", "result_id", "error_id", "payload")):
+                if all(
+                    k in payload for k in ("cmd", "result_id", "error_id", "payload")
+                ):
                     cmd = payload["cmd"]
 
                     # Prüfen, ob Command registriert ist
@@ -65,12 +65,17 @@ async def handle_frontend_connections(websocket: ServerConnection) -> None:
 
                     # Broadcast response to all connected clients
                     await asyncio.gather(
-                        *(client.send(response_msg) for client in core.connected_clients)
+                        *(
+                            client.send(response_msg)
+                            for client in core.connected_clients
+                        )
                     )
                 else:
                     logging.warning("Incomplete message keys: %s", payload)
             except json.JSONDecodeError as exc:
-                logging.error("Malformed JSON from %s: %s", websocket.remote_address, exc)
+                logging.error(
+                    "Malformed JSON from %s: %s", websocket.remote_address, exc
+                )
             except Exception as exc:
                 logging.exception("Unexpected error handling message: %s", exc)
     except websockets.ConnectionClosed:
@@ -94,7 +99,7 @@ async def create_websocket_server(url: str) -> None:
         if expected_path is not None and path_received != expected_path:
             await websocket.close(
                 code=1008,
-                reason=f"Invalid path {path_received}, expected {expected_path}"
+                reason=f"Invalid path {path_received}, expected {expected_path}",
             )
             return
 

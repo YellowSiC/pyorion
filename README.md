@@ -19,6 +19,24 @@
 
 ---
 
+
+
+<div align="center">
+  <img src="docs/images/data_flow.png" alt="Framework Architecture" width="400"/>
+  <p>This glossary defines the key terminology used in the framework architecture, ensuring consistent communication and documentation across Python, Rust, and WebView components.</p>
+</div>
+
+# Terminology
+
+| Term              | Explanation                                                                 | Role in the Framework |
+|-------------------|-----------------------------------------------------------------------------|------------------------|
+| **Startup Phase** | Python launches the Rust process as a child process and provides initial configurations (window, options, ports, etc.). | Defines the entry point and controls initialization. |
+| **IPC Layer**     | Bidirectional communication between Python and Rust over an IPC layer, tightly integrated with the Rust GUI event loop. | Ensures synchronized event processing and stable data exchange. |
+| **Script Injection** | Rust injects an `initial_script` into the WebView (JS context) at startup to set up the WebSocket connection and global objects. | Binds JavaScript early to the backend and establishes communication. |
+| **WebView Runtime** | Execution layer provided by **Tao/Wry**, offering a window and browser context where HTML/JS runs. | Presentation layer of the framework (UI). |
+| **WebSocket Bridge** | The injected JS WebSocket client connects to the Python WebSocket server. | Enables direct JS ↔ Python communication and event dispatch. |
+
+
 ## 🔑 Key Features
 
 - **Ultra-Lightweight** :🚀 Fast and resource-efficient for all platforms.

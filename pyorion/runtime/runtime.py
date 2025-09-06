@@ -86,7 +86,6 @@ def terminate_process_safely(proc: SpawnProcess) -> None:
         proc.join()
 
 
-
 async def run_native_runtime(
     app_cfg: WindowOptions,
     *,
@@ -136,9 +135,7 @@ async def run_native_runtime(
 
     launch_background_task(eventloop_sender())
     socket_cfg_json = (
-        socket_cfg.model_dump_json(by_alias=True)
-        if socket_cfg is not None
-        else None
+        socket_cfg.model_dump_json(by_alias=True) if socket_cfg is not None else None
     )
     ctx = get_context("spawn")
     with ctx.Manager() as manager:

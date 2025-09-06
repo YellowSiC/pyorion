@@ -1,4 +1,5 @@
 """Datamodel-Typen und Enums für PyOrion."""
+
 from __future__ import annotations
 
 import base64
@@ -25,6 +26,7 @@ class BaseSchema(BaseModel):
         populate_by_name=True,
         from_attributes=True,
     )
+
 
 class WebSocketConfig(BaseSchema):
     """WebSocketConfig - Configuration model for PyOrionConnections.
@@ -307,11 +309,9 @@ class WindowOptions(BaseSchema):
     webview: WebViewOptions | None = None
 
 
-
-
-
 class Color(BaseModel):
     """RGBA-Farbmodell (0-255 je Kanal)."""
+
     r: int = Field(..., ge=0, le=255, description="Rotanteil (0-255)")
     g: int = Field(..., ge=0, le=255, description="Grünanteil (0-255)")
     b: int = Field(..., ge=0, le=255, description="Blauanteil (0-255)")
@@ -433,10 +433,21 @@ class WindowEffectState(str, Enum):
     Active = "active"
     Inactive = "inactive"
 
+
 class WindowEffectsConfig(BaseModel):
     """Konfiguration für Window-Effekte."""
-    effects: list[WindowEffect] = Field(default_factory=list,description="Liste von Window-Effekten. Konflikte: nur der erste wird angewendet.")
-    state: WindowEffectState | None= Field(None, description="Window effect state (nur macOS).")
-    radius: float | None = Field(None, description="Fenster-Effekt Corner-Radius (nur macOS).")
-    color: Color | None = Field(None, description="Farbe (betrifft nur Blur/Acrylic unter Windows 10 v1903+).")
+
+    effects: list[WindowEffect] = Field(
+        default_factory=list,
+        description="Liste von Window-Effekten. Konflikte: nur der erste wird angewendet.",
+    )
+    state: WindowEffectState | None = Field(
+        None, description="Window effect state (nur macOS)."
+    )
+    radius: float | None = Field(
+        None, description="Fenster-Effekt Corner-Radius (nur macOS)."
+    )
+    color: Color | None = Field(
+        None, description="Farbe (betrifft nur Blur/Acrylic unter Windows 10 v1903+)."
+    )
     model_config = {"populate_by_name": True, "extra": "forbid"}

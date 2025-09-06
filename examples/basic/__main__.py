@@ -15,7 +15,9 @@ from .config import window_options_config
 if __name__ == "__main__":
     try:
         asyncio.run(
-            launch(app_cfg=window_options_config,websocket_url="ws://127.0.0.1:8765/ws")
+            launch(
+                app_cfg=window_options_config, websocket_url="ws://127.0.0.1:8765/ws"
+            )
         )
     except KeyboardInterrupt:
         print("Exiting...")
