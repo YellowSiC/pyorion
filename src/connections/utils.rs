@@ -1,3 +1,7 @@
+// Copyright 2025-2030 Ari Bermeki @ YellowSiC within The Commons Conservancy
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
 use pyo3::{prelude::*, types::PyList, BoundObject};
 
 pub fn json_to_py<'a>(py: Python<'a>, payload_value: &'a str) -> PyResult<Py<PyAny>> {

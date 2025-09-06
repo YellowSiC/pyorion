@@ -1,8 +1,12 @@
+// Copyright 2025-2030 Ari Bermeki @ YellowSiC within The Commons Conservancy
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
 /**
- * PyFrame frontend connection bootstrap.
+ * PyOrion frontend connection bootstrap.
  *
  * Provides a Promise-based `invoke(cmd, args)` API that communicates
- * with the backend via PyFrameConnections (WebSocket).
+ * with the backend via PyOrionConnections (WebSocket).
  *
  * Features:
  *  - Auto reconnect with configurable interval.
@@ -11,14 +15,6 @@
  *  - Global `window.invoke` helper for command dispatch.
  */
 (function () {
-  // Configure automatic reconnect
-  PyFrameConnections.configure({
-    reconnectInterval: 5000,
-    autoReconnect: true
-  });
-
-  // Start WebSocket connection
-  PyFrameConnections.connect();
 
   /**
    * Generate a random unique identifier.
@@ -36,6 +32,51 @@
    * @param {boolean} once - Whether to remove callback after first call.
    * @returns {number} Unique identifier for callback.
    */
+function jsonMakeObjectSafe(obj) {
+  if (obj === null || obj === undefined) {
+    return null;
+  }
+
+  // primitive Werte
+  if (typeof obj === "string" || typeof obj === "number" || typeof obj === "boolean") {
+    return obj;
+  }
+
+  // Date / Path -> String
+  if (obj instanceof Date) {
+    return obj.toISOString();
+  }
+  if (typeof obj === "object" && obj.constructor && obj.constructor.name === "Path") {
+    return String(obj);
+  }
+
+  // Buffer / ArrayBuffer / TypedArray -> Base64
+  if (obj instanceof ArrayBuffer) {
+    return btoa(String.fromCharCode(...new Uint8Array(obj)));
+  }
+  if (ArrayBuffer.isView(obj)) { // Uint8Array, Float32Array, etc.
+    return btoa(String.fromCharCode(...obj));
+  }
+
+  // plain Object -> rekursiv
+  if (typeof obj === "object" && !Array.isArray(obj)) {
+    const safe = {};
+    for (const [k, v] of Object.entries(obj)) {
+      safe[String(k)] = jsonMakeObjectSafe(v);
+    }
+    return safe;
+  }
+
+  // Array / Set -> rekursiv
+  if (Array.isArray(obj) || obj instanceof Set) {
+    return Array.from(obj, v => jsonMakeObjectSafe(v));
+  }
+
+  // Fallback -> String
+  return String(obj);
+}
+
+
   function transformCallback(callback, once) {
     const identifier = uid();
     const prop = `_${identifier}`;
@@ -51,7 +92,7 @@
   }
 
   /**
-   * Invoke a backend command via PyFrameConnections.
+   * Invoke a backend command via PyOrionConnections.
    *
    * @param {string} cmd - Command name.
    * @param {any} [args] - Payload arguments (any serializable type).
@@ -59,7 +100,7 @@
    */
   function invoke(cmd, args) {
     return new Promise((resolve, reject) => {
-      if (!PyFrameConnections.is_connected()) {
+      if (!PyOrionConnections.is_connected()) {
         reject(new Error("Socket is not connected or unavailable!"));
         return;
       }
@@ -75,15 +116,14 @@
         payload: py_args
       };
 
-      PyFrameConnections.send(message);
+      PyOrionConnections.send(message);
     });
   }
 
-  // Listen for backend messages and dispatch to registered callbacks
-  PyFrameConnections.on("message", (raw) => {
+PyOrionConnections.on("message", (raw) => {
     try {
       // console.log(raw);
-      const data = JSON.parse(raw);
+      const data = jsonMakeObjectSafe(JSON.parse(raw));
       const { result_id, error_id, result, error } = data;
 
       if (result_id) {
@@ -98,7 +138,8 @@
     } catch (err) {
       console.warn("Invalid message received:", raw);
     }
-  });
+});
+
 
   // Expose invoke globally
   window.invoke = invoke;

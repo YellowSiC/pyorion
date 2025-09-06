@@ -8,18 +8,22 @@ client registration, message dispatching, and broadcasting responses.
 import asyncio
 import json
 import logging
+from urllib.parse import urlparse
 
 import websockets
 from pydantic import BaseModel
 from websockets import ServerConnection
 
-from ..pyinvoke import _event_callbacks, make_callback
-from ..runtime import core
+from pyorion.pyinvoke import _event_callbacks, make_callback
+from pyorion.runtime import core
+from pyorion.utils import make_json_safe
 
 
 def list_commands() -> dict[str, list[str]]:
     """Return a mapping of registered event names -> handler function names."""
     return {key: [f.__name__ for f in funcs] for key, funcs in _event_callbacks.items()}
+
+
 
 
 async def handle_frontend_connections(websocket: ServerConnection) -> None:
@@ -34,9 +38,7 @@ async def handle_frontend_connections(websocket: ServerConnection) -> None:
                     logging.warning("Ignoring non-dict payload: %s", payload)
                     continue
 
-                if all(
-                    k in payload for k in ("cmd", "result_id", "error_id", "payload")
-                ):
+                if all(k in payload for k in ("cmd", "result_id", "error_id", "payload")):
                     cmd = payload["cmd"]
 
                     # Prüfen, ob Command registriert ist
@@ -55,25 +57,20 @@ async def handle_frontend_connections(websocket: ServerConnection) -> None:
                         payload["payload"],
                     )
 
-                    response_msg = (
-                        response.model_dump_json(by_alias=True)
-                        if isinstance(response, BaseModel)
-                        else json.dumps(response)
-                    )
+                    # Einheitliche Serialisierung
+                    if isinstance(response, BaseModel):
+                        response_msg = response.model_dump_json(by_alias=True)
+                    else:
+                        response_msg = json.dumps(response, default=make_json_safe)
 
                     # Broadcast response to all connected clients
                     await asyncio.gather(
-                        *(
-                            client.send(response_msg)
-                            for client in core.connected_clients
-                        )
+                        *(client.send(response_msg) for client in core.connected_clients)
                     )
                 else:
                     logging.warning("Incomplete message keys: %s", payload)
             except json.JSONDecodeError as exc:
-                logging.error(
-                    "Malformed JSON from %s: %s", websocket.remote_address, exc
-                )
+                logging.error("Malformed JSON from %s: %s", websocket.remote_address, exc)
             except Exception as exc:
                 logging.exception("Unexpected error handling message: %s", exc)
     except websockets.ConnectionClosed:
@@ -82,9 +79,26 @@ async def handle_frontend_connections(websocket: ServerConnection) -> None:
         core.connected_clients.discard(websocket)
 
 
-async def create_websocket_server(host: str = "localhost", port: int = 8765) -> None:
-    """Create and run the frontend WebSocket server."""
-    logging.info("Starting WebSocket server on ws://%s:%d", host, port)
-    logging.info("Registered commands at startup: %s", list_commands())
-    async with websockets.serve(handle_frontend_connections, host, port):
-        await asyncio.Future()  # Run until externally cancelled
+async def create_websocket_server(url: str) -> None:
+    """Create and run the frontend WebSocket server (with optional path)."""
+    parsed = urlparse(url)
+    host, port = parsed.hostname, parsed.port
+    expected_path = parsed.path if parsed.path and parsed.path != "/" else None
+
+    if not host or not port:
+        raise ValueError(f"Invalid WebSocket URL: {url}")
+
+    async def handler(websocket: ServerConnection):
+        path_received = websocket.request.path
+
+        if expected_path is not None and path_received != expected_path:
+            await websocket.close(
+                code=1008,
+                reason=f"Invalid path {path_received}, expected {expected_path}"
+            )
+            return
+
+        await handle_frontend_connections(websocket)
+
+    async with websockets.serve(handler, host, port):
+        await asyncio.Future()

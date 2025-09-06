@@ -35,7 +35,7 @@ window_options_config = WindowOptions(
     resizable=True,
     webview=WebViewOptions(
         label="root",
-        render_protocol="examples/basic/web",  # could also be folder/index.html, HTML string, or URL
+        render_protocol="examples/all_api/web",  # could also be folder/index.html, HTML string, or URL
         visible=True,
         devtools=True,
     ),

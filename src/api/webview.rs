@@ -1,9 +1,13 @@
+// Copyright 2025-2030 Ari Bermeki @ YellowSiC within The Commons Conservancy
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
 use anyhow::Result;
 use pyorion_macros::api;
 
 use crate::api_manager::ApiManager;
 
-pub fn register_api_instances(api_manager: &mut ApiManager) {
+pub fn webview_api(api_manager: &mut ApiManager) {
     api_manager.register_api("webview.isDevtoolsOpen", is_devtools_open);
     api_manager.register_api("webview.openDevtools", open_devtools);
     api_manager.register_api("webview.closeDevtools", close_devtools);

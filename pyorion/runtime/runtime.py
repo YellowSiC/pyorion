@@ -11,9 +11,11 @@ from multiprocessing import get_context
 from multiprocessing.context import SpawnProcess
 from pathlib import Path
 
-from pyorion.types import WindowOptions
+from pydantic import AnyHttpUrl
 
-from .._pyorion import create_webframe
+from pyorion._pyorion import create_webframe
+from pyorion.setup.types import WebSocketConfig, WindowOptions
+
 from . import core
 from .connections import create_websocket_server
 from .runtime_handle import eventloop_sender
@@ -84,45 +86,70 @@ def terminate_process_safely(proc: SpawnProcess) -> None:
         proc.join()
 
 
+
 async def run_native_runtime(
-    init_options: WindowOptions, host: str = "localhost", port: int = 8080
+    app_cfg: WindowOptions,
+    *,
+    internal_proto: bool = True,
+    websocket_url: AnyHttpUrl | None = None,
+    protocols: list[str] | None = None,
+    auto_reconnect: bool = True,
+    reconnect_interval: int = 3000,
 ) -> None:
-    """Start the native runtime environment including the WebFrame process and servers.
+    """Start the native runtime environment.
 
-    This function manages the lifecycle of the WebFrame subprocess as well
-    as the asyncio-based background servers (WebSocket and event loop sender).
+    This function launches the native WebFrame subprocess and manages
+    background servers (WebSocket and event loop sender). It ensures that
+    processes and tasks are started, monitored, and terminated gracefully.
 
-    A multiprocessing ``Manager`` is used here to create a shared
-    synchronization primitive (``Event``). Unlike a normal
-    ``threading.Event`` or ``asyncio.Event``, the manager-provided ``Event``
-    can be safely shared across processes. This allows the subprocess
-    (WebFrame) and the parent process to communicate shutdown signals
-    reliably, ensuring coordinated termination.
+    A ``multiprocessing.Manager`` is used to create a shared shutdown event.
+    This event allows communication between the WebFrame subprocess and the
+    parent process to coordinate shutdown.
 
-    :param init_options: Window configuration options serialized into JSON and passed to the WebFrame process.
-    :type init_options: WindowOptions
-    :param host: Host address for the WebSocket server.
-    :type host: str, optional
-    :param port: Port number for the WebSocket server.
-    :type port: int, optional
+    :param app_cfg: Window configuration options serialized into JSON and passed
+                    to the WebFrame process.
+    :type app_cfg: WindowOptions
+    :param internal_proto: Whether to enable the internal protocol handler.
+    :type internal_proto: bool, optional
+    :param websocket_url: The WebSocket URL used by the runtime (if provided).
+    :type websocket_url: AnyHttpUrl | None, optional
+    :param protocols: Optional list of supported WebSocket subprotocols.
+    :type protocols: list[str] | None, optional
+    :param auto_reconnect: Whether the WebSocket client should automatically reconnect.
+    :type auto_reconnect: bool, optional
+    :param reconnect_interval: Interval in milliseconds before attempting reconnect.
+    :type reconnect_interval: int, optional
+    :return: None
+    :rtype: None
     """
+    socket_cfg = None
+
     loop = asyncio.get_running_loop()
+    if internal_proto and websocket_url is not None:
+        socket_cfg = WebSocketConfig(
+            url=websocket_url,
+            protocols=protocols,
+            auto_reconnect=auto_reconnect,
+            reconnect_interval=reconnect_interval,
+        )
+        launch_background_task(create_websocket_server(str(websocket_url)))
 
-    # Start background tasks
-    launch_background_task(create_websocket_server(host, port))
     launch_background_task(eventloop_sender())
-
+    socket_cfg_json = (
+        socket_cfg.model_dump_json(by_alias=True)
+        if socket_cfg is not None
+        else None
+    )
     ctx = get_context("spawn")
     with ctx.Manager() as manager:
         close_event = manager.Event()
-        config = init_options.model_dump_json(by_alias=True)
+        config = app_cfg.model_dump_json(by_alias=True)
 
         global shutdown_event
         shutdown_event = close_event
-        name_pipe = "pyframe_pipe"
         proc = ctx.Process(
             target=create_webframe,
-            args=(config, host, port, name_pipe, close_event),
+            args=(config, socket_cfg_json, "pyframe_pipe", shutdown_event),
             daemon=False,
         )
         proc.start()

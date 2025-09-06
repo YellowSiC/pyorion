@@ -1,6 +1,8 @@
 """Utility helpers for PyOrion."""
 
+import base64
 import dataclasses
+import shutil
 import socket
 from pathlib import Path
 from typing import Any
@@ -9,7 +11,13 @@ from pydantic import BaseModel
 
 
 def find_folder(folder_name: str) -> Path | None:
-    """Search for a folder starting from the current working directory."""
+    """Search recursively for a folder starting from the current working directory.
+
+    :param folder_name: The name of the folder to search for.
+    :type folder_name: str
+    :return: Path to the folder if found, otherwise ``None``.
+    :rtype: Path | None
+    """
     start_path = Path.cwd()
     for path in start_path.rglob(folder_name):
         if path.is_dir():
@@ -18,7 +26,14 @@ def find_folder(folder_name: str) -> Path | None:
 
 
 def load_html(path: Path | str | None) -> str:
-    """Load HTML content from a file or return a fallback message."""
+    """Load HTML content from a file or return a fallback snippet.
+
+    :param path: File path to an HTML file. If ``None`` or missing, a fallback
+                 snippet will be returned.
+    :type path: Path | str | None
+    :return: The HTML content.
+    :rtype: str
+    """
     if path is None:
         return _fallback_html()
 
@@ -30,12 +45,20 @@ def load_html(path: Path | str | None) -> str:
 
 
 def _fallback_html() -> str:
-    """Return a default HTML snippet as fallback content."""
+    """Return a default HTML snippet as fallback content.
+
+    :return: A minimal HTML snippet.
+    :rtype: str
+    """
     return r""" ... """
 
 
 def find_free_ports_and_create_addrs() -> str:
-    """Find a free TCP port and return a localhost address."""
+    """Find a free TCP port and return a localhost address.
+
+    :return: Localhost address with a free port (e.g. ``127.0.0.1:8080``).
+    :rtype: str
+    """
 
     def find_free_port() -> int:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -46,39 +69,37 @@ def find_free_ports_and_create_addrs() -> str:
     return f"127.0.0.1:{port}"
 
 
-def split_address(address: str) -> tuple[str, int]:
-    """Split an address of the form ``host:port`` into host and port."""
-    if ":" not in address:
-        msg = f"Invalid address format: {address!r}. Expected: 'host:port'."
-        raise ValueError(msg)
+def debug(fn: str, message: Any) -> None:
+    """Print a debug message to stdout.
 
-    host, port_str = address.rsplit(":", 1)
-
-    if not host:
-        raise ValueError("Host part must not be empty.")
-    if not port_str:
-        raise ValueError("Port part must not be empty.")
-
-    try:
-        port = int(port_str)
-        if not (0 <= port <= 65535):
-            raise ValueError(f"Port must be between 0 and 65535: {port}")
-    except ValueError as exc:
-        raise ValueError(f"Invalid port: {port_str!r}. Must be an integer.") from exc
-
-    return host, port
+    :param fn: The function or source identifier.
+    :type fn: str
+    :param message: The message content to log.
+    :type message: Any
+    :return: None
+    :rtype: None
+    """
+    print(f"[DEBUG] from {fn} message to send: {message}")
 
 
 def make_json_safe(obj: Any) -> Any:
-    """Convert arbitrary Python objects into JSON-serializable structures."""
+    """Convert arbitrary Python objects into JSON-serializable structures.
+
+    :param obj: The object to convert.
+    :type obj: Any
+    :return: A JSON-safe representation of the object.
+    :rtype: Any
+    """
     if obj is None:
         return None
     if isinstance(obj, (str, int, float, bool)):
         return obj
     if isinstance(obj, Path):
         return str(obj)
+    if isinstance(obj, (bytes, bytearray)):
+        return base64.b64encode(obj).decode("ascii")
     if isinstance(obj, BaseModel):
-        return obj.model_dump()
+        return obj.model_dump(by_alias=True)
     if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
         return dataclasses.asdict(obj)
     if isinstance(obj, dict):
@@ -89,9 +110,33 @@ def make_json_safe(obj: Any) -> Any:
 
 
 def normalize_args(args: Any | None) -> list[Any]:
-    """Normalize arguments to a JSON-safe list."""
+    """Normalize arguments to a JSON-safe list.
+
+    :param args: The arguments to normalize.
+    :type args: Any | None
+    :return: List of JSON-safe arguments.
+    :rtype: list[Any]
+    """
     if args is None:
         return []
     if isinstance(args, list):
         return [make_json_safe(a) for a in args]
     return [make_json_safe(args)]
+
+
+def remove_pycash(directory: Path | str | None = None) -> None:
+    """Remove all ``__pycache__`` directories recursively.
+
+    :param directory: Start directory. Defaults to the current working directory.
+    :type directory: Path | str | None
+    :return: None
+    :rtype: None
+    """
+    directory = Path.cwd() if directory is None else Path(directory)
+
+    for pycache in directory.rglob("__pycache__"):
+        try:
+            shutil.rmtree(pycache)
+            print(f"Deleted: {pycache}")
+        except Exception as e:
+            print(f"Error deleting {pycache}: {e}")

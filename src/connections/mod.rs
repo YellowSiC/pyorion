@@ -1,3 +1,7 @@
+// Copyright 2025-2030 Ari Bermeki @ YellowSiC within The Commons Conservancy
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
 pub mod handler;
 pub mod unix_conn;
 pub mod utils;
@@ -41,7 +45,6 @@ pub mod utils;
 /// [`unix_conn::platform_main`]: crate::unix_conn::platform_main
 pub mod windows_conn;
 use pyo3::prelude::*;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 #[allow(dead_code)]
 pub async fn start_connection(
@@ -66,9 +69,9 @@ pub fn send_event_over_platform<'py>(
     name: String,
     message: String,
 ) -> PyResult<Bound<'py, PyAny>> {
-    // Fut ist plattformspezifisch
     #[cfg(windows)]
     let fut = async move {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
         use tokio::net::windows::named_pipe::ClientOptions;
         use tokio::time::{sleep, Duration};
         use windows_sys::Win32::Foundation::ERROR_PIPE_BUSY;
@@ -84,28 +87,49 @@ pub fn send_event_over_platform<'py>(
             sleep(Duration::from_millis(10)).await;
         };
 
-        client.write_all(message.as_bytes()).await?;
+        // Nachricht mit Länge schicken
+        let msg_bytes = message.as_bytes();
+        let len = msg_bytes.len() as u32;
+        client.write_all(&len.to_le_bytes()).await?;
+        client.write_all(msg_bytes).await?;
         client.flush().await?;
 
-        let mut buf = vec![0u8; 8192];
-        let n = client.read(&mut buf).await?;
-        let resp_str = String::from_utf8_lossy(&buf[..n]).to_string();
+        // Antwort lesen
+        let mut len_buf = [0u8; 4];
+        client.read_exact(&mut len_buf).await?;
+        let resp_len = u32::from_le_bytes(len_buf) as usize;
+
+        let mut resp_buf = vec![0u8; resp_len];
+        client.read_exact(&mut resp_buf).await?;
+        let resp_str = String::from_utf8_lossy(&resp_buf).to_string();
+
         Ok::<String, anyhow::Error>(resp_str)
     };
 
     #[cfg(unix)]
     let fut = async move {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
         use tokio::net::UnixStream;
 
         let path = format!("/tmp/{}", name);
         let mut stream = UnixStream::connect(&path).await?;
 
-        stream.write_all(message.as_bytes()).await?;
+        // Nachricht mit Länge schicken
+        let msg_bytes = message.as_bytes();
+        let len = msg_bytes.len() as u32;
+        stream.write_all(&len.to_le_bytes()).await?;
+        stream.write_all(msg_bytes).await?;
         stream.flush().await?;
 
-        let mut buf = vec![0u8; 8192];
-        let n = stream.read(&mut buf).await?;
-        let resp_str = String::from_utf8_lossy(&buf[..n]).to_string();
+        // Antwort lesen
+        let mut len_buf = [0u8; 4];
+        stream.read_exact(&mut len_buf).await?;
+        let resp_len = u32::from_le_bytes(len_buf) as usize;
+
+        let mut resp_buf = vec![0u8; resp_len];
+        stream.read_exact(&mut resp_buf).await?;
+        let resp_str = String::from_utf8_lossy(&resp_buf).to_string();
+
         Ok::<String, anyhow::Error>(resp_str)
     };
 

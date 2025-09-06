@@ -1,6 +1,10 @@
+// Copyright 2025-2030 Ari Bermeki @ YellowSiC within The Commons Conservancy
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
 use anyhow::Result;
-use pyorion_options::window::WindowOptions;
 use pyo3::Python;
+use pyorion_options::window::WindowOptions;
 use std::sync::Arc;
 
 use crate::{
@@ -23,7 +27,7 @@ pub struct App {
 impl App {
     pub fn new(
         event_loop: &mut FrameEventLoop,
-        init_add: String,
+        sock_cfg: Option<crate::assets::WebSocketConfig>,
         options: &WindowOptions,
         uds_name: String,
     ) -> Result<std::sync::Arc<App>> {
@@ -36,7 +40,7 @@ impl App {
         );
 
         let (window_id, window, webview) =
-            crate::window::create_frame(&event_loop, options, init_add)?;
+            crate::window::create_frame(&event_loop, options, sock_cfg)?;
 
         let ctx = AppContext::new()?;
 

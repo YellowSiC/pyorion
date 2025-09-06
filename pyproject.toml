@@ -28,7 +28,7 @@ classifiers = [
 
 
 dependencies = [
-  "watchdog >=4.0.1, <7.0",
+  "watchdog >=4.0.1, <5.0",
   "multiprocess == 0.70.18",
   "nestd == 0.3.2",
   "inquirerpy == 0.3.4",
@@ -72,7 +72,7 @@ lint = [
 # Testing dependencies
 test = [
   "pytest>=8.0.0,<9.0",
-  "pytest-asyncio>=0.23,<2.0",
+  "pytest-asyncio>=0.23,<1.0",
 ]
 
 [tool.ruff.format]

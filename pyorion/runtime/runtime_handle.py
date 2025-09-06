@@ -12,9 +12,8 @@ from typing import Any, Callable, Optional, TypeVar, cast
 
 from pydantic import BaseModel
 
+from pyorion._pyorion import send_event_over_platform
 from pyorion.utils import make_json_safe, normalize_args
-
-from .._pyorion import send_event_over_platform
 
 
 R = TypeVar("R", bound=BaseModel)

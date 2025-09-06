@@ -1,3 +1,7 @@
+// Copyright 2025-2030 Ari Bermeki @ YellowSiC within The Commons Conservancy
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
 use pyorion_options::window::{WebViewOptions, WindowOptions};
 use tao::{
     dpi::{Position, Size},
@@ -99,13 +103,17 @@ impl FrameBuilder {
     pub fn build_webview(
         window: &tao::window::Window,
         options: &WebViewOptions,
-        init_add: String,
+        sock_cfg: Option<crate::assets::WebSocketConfig>,
     ) -> anyhow::Result<wry::WebView> {
-        let mut builder = wry::WebViewBuilder::new()
-            .with_initialization_script(init_add)
-            .with_initialization_script(crate::assets::_CONN_SCRIPT)
-            .with_initialization_script(crate::assets::_COMMAND_SCRIPT);
+        // websocket_config
+        let mut builder = wry::WebViewBuilder::new();
 
+        if let Some(conf) = sock_cfg {
+            let socket_conf = crate::assets::websocket_config(conf)?;
+            builder = builder
+                .with_initialization_script(socket_conf)
+                .with_initialization_script(crate::assets::_COMMAND_SCRIPT);
+        }
         if let Some(label) = &options.label {
             builder = builder.with_id(label.as_str());
         } else {

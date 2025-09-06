@@ -26,14 +26,14 @@ using the ``PyOrion`` types module.
   An external website can be used as the start page (e.g., ``"https://example.com"``).
 """
 
-from pyorion.setup.types import Size, UnitType, WebViewOptions, WindowOptions
+from pyorion.setup import types
 
 
-window_options_config = WindowOptions(
+window_options_config = types.WindowOptions(
     title="Scientific Dashboard",
-    inner_size=Size(width=900, height=700, unit=UnitType.logical),
+    inner_size=types.Size(width=900, height=700, unit=types.UnitType.logical),
     resizable=True,
-    webview=WebViewOptions(
+    webview=types.WebViewOptions(
         label="root",
         render_protocol="examples/basic/web",  # could also be folder/index.html, HTML string, or URL
         visible=True,

@@ -1,6 +1,7 @@
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use tao::dpi::{
     LogicalPosition, LogicalSize, PhysicalPosition, PhysicalSize, Position as DpiPosition,
     Size as DpiSize,
@@ -450,4 +451,120 @@ pub struct WebViewOptions {
     pub zoom_hotkeys: Option<bool>,
     pub background_throttling: Option<bool>,
     pub back_forward_navigation_gestures: Option<bool>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct Color {
+    /// Rotanteil (0–255)
+    pub r: u8,
+    /// Grünanteil (0–255)
+    pub g: u8,
+    /// Blauanteil (0–255)
+    pub b: u8,
+    /// Alpha-Kanal (0–255)
+    pub a: u8,
+}
+
+impl Color {
+    pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
+        Self { r, g, b, a }
+    }
+
+    /// Hex-String wie `#RRGGBB` oder `#RRGGBBAA`
+    pub fn to_hex(&self) -> String {
+        if self.a == 255 {
+            format!("#{:02X}{:02X}{:02X}", self.r, self.g, self.b)
+        } else {
+            format!("#{:02X}{:02X}{:02X}{:02X}", self.r, self.g, self.b, self.a)
+        }
+    }
+
+    pub fn from_hex(hex: &str) -> Option<Self> {
+        let hex = hex.trim_start_matches('#');
+        match hex.len() {
+            6 => {
+                let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
+                let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
+                let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
+                Some(Self { r, g, b, a: 255 })
+            }
+            8 => {
+                let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
+                let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
+                let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
+                let a = u8::from_str_radix(&hex[6..8], 16).ok()?;
+                Some(Self { r, g, b, a })
+            }
+            _ => None,
+        }
+    }
+
+    /// Umwandlung nach RGBA-Array (z. B. für WGPU oder Tao)
+    pub fn to_rgba(&self) -> [u8; 4] {
+        [self.r, self.g, self.b, self.a]
+    }
+}
+
+impl From<Color> for (u8, u8, u8, u8) {
+    fn from(c: Color) -> Self {
+        (c.r, c.g, c.b, c.a)
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+/// Platform-specific window effects
+pub enum WindowEffect {
+    Titlebar,
+    Selection,
+    Menu,
+    Popover,
+    Sidebar,
+    HeaderView,
+    Sheet,
+    WindowBackground,
+    HudWindow,
+    FullScreenUI,
+    Tooltip,
+    ContentBackground,
+    UnderWindowBackground,
+    UnderPageBackground,
+    Mica,
+    MicaDark,
+    MicaLight,
+    Tabbed,
+    TabbedDark,
+    TabbedLight,
+    Blur,
+
+    Acrylic,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum WindowEffectState {
+    /// Make window effect state follow the window's active state
+    FollowsWindowActiveState,
+    /// Make window effect state always active
+    Active,
+    /// Make window effect state always inactive
+    Inactive,
+}
+
+/// The window effects configuration object
+#[skip_serializing_none]
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct WindowEffectsConfig {
+    /// List of Window effects to apply to the Window.
+    /// Conflicting effects will apply the first one and ignore the rest.
+    pub effects: Vec<WindowEffect>,
+    /// Window effect state **macOS Only**
+    pub state: Option<WindowEffectState>,
+    /// Window effect corner radius **macOS Only**
+    pub radius: Option<f64>,
+    /// Window effect color. Affects [`WindowEffect::Blur`] and [`WindowEffect::Acrylic`] only
+    /// on Windows 10 v1903+. Doesn't have any effect on Windows 7 or Windows 11.
+    pub color: Option<Color>,
 }

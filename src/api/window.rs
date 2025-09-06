@@ -1,10 +1,15 @@
+// Copyright 2025-2030 Ari Bermeki @ YellowSiC within The Commons Conservancy
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
 use anyhow::Result;
 use pyorion_macros::api;
+use pyorion_options::window::WindowEffectsConfig;
 
-use crate::api_manager::ApiManager;
+use crate::{api::vibrancy::set_window_effects as effect, api_manager::ApiManager};
 
 /*
-
+set_window_effects
 
 
 
@@ -17,6 +22,15 @@ use crate::api_manager::ApiManager;
 /// Android: Unsupported.
 /// - iOS: Can only be called on the main thread.
 ///
+#[api]
+fn set_window_effects(effects: WindowEffectsConfig) -> Result<bool> {
+    if let Ok(window) = app.app_context()?.get_window() {
+        let _ = effect(&window, Some(effects));
+        Ok(true)
+    } else {
+        Ok(false)
+    }
+}
 
 #[api]
 fn set_visible(visible: bool) -> Result<bool> {
@@ -618,7 +632,7 @@ fn outer_position() -> Result<tao::dpi::PhysicalPosition<i32>> {
     Ok(window.outer_position()?)
 }
 
-pub fn register_api_instances(api_manager: &mut ApiManager) {
+pub fn window_api(api_manager: &mut ApiManager) {
     api_manager.register_api("window.set_title", set_title);
     api_manager.register_api("window.get_title", get_title);
     api_manager.register_api("window.scale_factor", scale_factor);
@@ -662,4 +676,5 @@ pub fn register_api_instances(api_manager: &mut ApiManager) {
     api_manager.register_api("window.inner_size", inner_size);
     api_manager.register_api("window.outer_size", outer_size);
     api_manager.register_api("window.outer_position", outer_position);
+    api_manager.register_api("window.set_window_effect", set_window_effects);
 }

@@ -6,8 +6,7 @@ __version__: str
 
 def create_webframe(
     config: str,
-    host: str,
-    port: int,
+    sock_cfg: str | None,
     uds_name: str,
     close_event: multiprocessing.Event,  # type: ignore
 ) -> Any: ...

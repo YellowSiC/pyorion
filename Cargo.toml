@@ -26,6 +26,7 @@ crossbeam-channel = "0.5.15"
 tokio-stream = "0.1.17"
 futures = "0.3.31"
 futures-util = { version = "0.3.31", features = ["sink"] }
+serde_with = "3.14.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.143"
 uuid = { version = "1.18.0", features = ["v4"] }
@@ -41,6 +42,16 @@ pyorion_options = { path = "./crates/pyorion_options" }
 base64 = "0.22.1"
 infer = "0.19.0"
 ctrlc = "3.4.7"
+serialize-to-javascript = "0.1.2"
+rfd = { version = "0.15.4", default-features = false, features = ["xdg-portal", "tokio"] }
+notify-rust = "4.11.7"
+arboard = "3.6.1"
+raw-window-handle = "0.6.2"
+window-vibrancy = "0.6.0"
+dirs = "6.0.0"
+notify = "8.2.0"
+walkdir = "2.5.0"
+sha2 = "0.10.9"
 
 [workspace]
 members = [
@@ -62,6 +73,15 @@ windows-sys = { version = "0.60.2", features = [
     "Win32_System_IO",
     "Win32_Security_Authorization"
 ]}
+webview2-com = { version = "0.38", optional = true }
+window-vibrancy = "0.6"
+windows = { version = "0.61", features = [
+  "Win32_Foundation",
+  "Win32_UI",
+  "Win32_UI_WindowsAndMessaging",
+] }
+
+
 runas = "=1.2.0"
 deelevate = "0.2.0"
 winreg = "0.55.0"
@@ -87,3 +107,32 @@ codegen-units = 1
 lto = true
 panic = "abort"
 strip = true
+
+
+
+
+# macOS
+[target.'cfg(target_os = "macos")'.dependencies]
+embed_plist = "1.2"
+plist = "1"
+objc2-foundation = { version = "0.3", default-features = false, features = [
+  "std",
+  "NSData",
+  "NSThread",
+] }
+objc2-app-kit = { version = "0.3", default-features = false, features = [
+  "std",
+  "NSApplication",
+  "NSColor",
+  "NSResponder",
+  "NSView",
+  "NSWindow",
+  "NSImage",
+] }
+objc2-web-kit = { version = "0.3", features = [
+  "objc2-app-kit",
+  "WKWebView",
+  "WKUserContentController",
+] }
+window-vibrancy = "0.6"
+
